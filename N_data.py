@@ -1,23 +1,30 @@
-#import csv
 import numpy as np
 import matplotlib.pyplot as plt
-import pylab as pl
+#import pylab as pl
 
 #input file
-ch2data = np.genfromtxt("h2data17.csv", dtype=int, delimiter='\t')
-print('Dimension of ch2data time * energy', data.shape)
+ch2data = np.genfromtxt("h2data17.csv",dtype=int, delimiter='\t')
+print('Dimension of ch2 data time * energy',ch2data.shape)
+
 ch3data = np.genfromtxt("h3data17.csv", dtype=int, delimiter='\t')
-print('Dimension of ch3data time * energy', data.shape)
+print('Dimension of data time * energy', ch3data.shape)
+
+trigger = np.genfromtxt("trigdata.csv", dtype=int, delimiter='\t')
+print('diemnsion of trigger data ', trigger.shape)
+
+pulserdata = np.genfromtxt("pulserdata.csv", dtype=int, delimiter='\t')
+print('diemension of pulser data', pulserdata.shape)
 
 
 #////////////Subject to change
 #timemax/interval has to be a integer
 timemax = 2000
-interval = 50
+interval = 100
+real_t_interval = (interval/137)*3600
 #/////////////Subject to change
 
 
-def distribution (ch2data, tmin, tmax, Emin, Emax):
+def distribution (data, tmin, tmax, Emin, Emax):
 	
 	tmaxx = tmax + 1
 	# extracting data from 0 to tmax rows(time range)
@@ -30,60 +37,97 @@ def distribution (ch2data, tmin, tmax, Emin, Emax):
 	# s returns a list of total counts for a given time interval and energy range
 	return s
 
+def centroid (Input, Emin, Emax):
+	erange = list(range(Emin,Emax + 1))
+	numerator = [x * y for x, y in zip (erange, Input)]
+	Centroid = sum(numerator) / sum(Input)
+	return Centroid
 
-def centroid (input, Emin, Emax):
-	cen_list = []
-	erange = list(range(17,Emax + 1))
-	numerator = [x * y for x, y in zip (erange, count)]
-	centroid = sum(numerator) / sum(count)
-	cen_list.append(centroid)
-	return cen_list
+def chisquare (input_rate, input_count):
+	rate_sigma = ((np.array(input_count))**0.5)/real_t_interval
+	num = sum( np.array(input_rate)/(rate_sigma**2) )
+	dem = sum(1/rate_sigma**2)
+	mean = num/dem
+	chisquare = (sum(((np.array(input_rate) - mean)/rate_sigma)**2))/19
+	return chisquare
 
-
+def rescale(input_cen, input_rate, slope):
+	mean_cen = np.mean(np.array(input_cen))
+	print("mean_cen",mean_cen)
+	del_cen = np.array(input_cen) - mean_cen
+	corr_rate = np.array(input_rate) - (del_cen * slope)
+	return corr_rate
 
 
 a = list(range(timemax + 1))
 b = a[interval:timemax + interval - 1:interval]
 trial = int(timemax/interval)
 print('number of trials', trial)
-count_s = []
-#cen_list = []
+cen_list2 = []
+cen_list3 = []
+count_list2 = []
+count_list3 = []
+count_trig = []
+pulser_list = []
+
 for i in range(trial):
-	tmin = b[i] - (interval - 1)
-	tmax = b[i]
-	count = distribution(ch2data,tmin,tmax,17,800)
-	count_s.append(sum(count))
-
-	cent = centroid(count, 17, 800)
+	tmin = b[i] - (interval - 1) + 5
+	tmax = b[i] + 5
 	
-	'''erange = list(range(17,801))
-				numerator = [x * y for x, y in zip (erange, count)]
-				centroid = sum(numerator) / sum(count)
-				cen_list.append(centroid)'''
+	# Gathering data for trigger, pulser, counts and centroid calculation by time interval
+	counttrig = distribution(trigger,tmin,tmax,0,5000)
+	count_trig.append(sum(counttrig))
+	
+	pulser = distribution(pulserdata,tmin,tmax,840,860)
+	pulser_list.append(sum(pulser))
 
-print(len(erange), len(count))
-print("counts", count_s)
-print("centroid", cen)
+	
+	count1 = distribution(ch2data,tmin,tmax,16,1023)
+	count_list2.append(sum(count1))
+	count2 = distribution(ch3data,tmin,tmax,25,1023)
+	count_list3.append(sum(count2))
 
-plt.style.use('ggplot')
-fig,ax = pl.subplots() 
-#fig.set_size_inches(11,8.5)
-#y = distribution(data,0,137,0,400)
-y = count_s
-x = np.array(list(range(len(y)))) + 1
-print('x dimension ',len(x),'y diemnsion ',len(y))
-print('max counts is ', max(y), ', min counts is', min(y), 'percent difference is', (max(y)-min(y))/max(y))
-ax.plot(x, y,marker="o",linestyle="-",markersize=5)
-ax.set_xlabel('trials by time interval')
-ax.set_ylabel('counts')
-#ax.set_xlim(17,800)
-#ax.set_ylim(0,5000)
-#ax.set_yscale('log')
-ax.autoscale()
-#print(x)
+	centroid2 = centroid(count1,16, 1023)
+	cen_list2.append(centroid2)
+	centroid3 = centroid(count2,25,1023)
+	cen_list3.append(centroid3)
 
 
-plt.show()
-#print (y)
+fraction_alive = np.array(count_list2)/np.array(count_trig)
+print("fraction alive",fraction_alive)
+
+ch2rate = np.array(count_list2)/real_t_interval
+ch3rate = np.array(count_list3)/real_t_interval
+
+print("channel 2 data", count_list2)
+print("channel 2 centroid", cen_list2)
+print("channel 2 rate", ch2rate)
+print("")
+print("channel 3 data", count_list3)
+print("channel 3 centroid", cen_list3)
+print("channel 3 rate", ch3rate)
+print("")
+print("trigger data", count_trig)
+print("pulser data", pulser_list)
+
+#Linear fit between centroid and count rate
+linear_fit2 = np.polyfit(np.array(cen_list2),ch2rate,1)
+linear_fit3 = np.polyfit(np.array(cen_list3), ch3rate,1)
+print("")
+print('L fit ch2', linear_fit2, "L fit ch3", linear_fit3)
+
+corrected_rate = rescale(cen_list3, ch3rate,4.80039 )
+print("corrected_rate3", corrected_rate)
+
+corrected_count = np.array(corrected_rate)*real_t_interval
+
+chi = chisquare(ch2rate, count_list2)
+print("chi_square_before", chi)
+
+corr_chi = chisquare(corrected_rate,corrected_count)
+print(corr_chi)
+
+
+
 
 
