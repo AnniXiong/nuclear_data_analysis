@@ -25,14 +25,11 @@ real_t_interval = (interval/137)*3600
 
 
 def distribution (data, tmin, tmax, Emin, Emax):
-	
-	tmaxx = tmax + 1
 	# extracting data from 0 to tmax rows(time range)
-	time_range = data[tmin:tmaxx]        
+	time_range = data[tmin:tmax + 1]        
 	#print("time_range dimension",time_range.shape)
 	#Choose column from Emin to Emax
-	Emaxx = Emax + 1
-	data_choosen = time_range[ : ,Emin:Emaxx]
+	data_choosen = time_range[ : ,Emin:Emax + 1]
 	s = data_choosen.sum(axis = 0)
 	# s returns a list of total counts for a given time interval and energy range
 	return s
@@ -58,6 +55,21 @@ def rescale(input_cen, input_rate, slope):
 	corr_rate = np.array(input_rate) - (del_cen * slope)
 	return corr_rate
 
+# Calculating denominator of the fraction alive
+def denominator (count_list):
+	scaling_factor = 8
+	
+	rev = (len(a) - idx for idx, item in enumerate(reversed(a), 1) if item)
+	last_non_zero_index = next(rev)
+	
+	max_count = max(count_list)
+	max_indeces = [i for i, j in enumerate(count_list) if j == max_count]
+	channel = max(max_indeces) # channel number with the largest count
+	
+	#dem = channel * scaling_factor
+	dem = ((max_count-1) * last_non_zero_index) + channel
+	return dem
+
 
 a = list(range(timemax + 1))
 b = a[interval:timemax + interval - 1:interval]
@@ -69,32 +81,38 @@ count_list2 = []
 count_list3 = []
 count_trig = []
 pulser_list = []
+frac_alive = []
 
 for i in range(trial):
-	tmin = b[i] - (interval - 1) + 5
-	tmax = b[i] + 5
+	timeoffset = 0
+	tmin = b[i] - (interval - 1) + timeoffset
+	tmax = b[i] + timeoffset
 	
 	# Gathering data for trigger, pulser, counts and centroid calculation by time interval
 	counttrig = distribution(trigger,tmin,tmax,0,5000)
 	count_trig.append(sum(counttrig))
+
+	den = denominator(counttrig)
+	fraction_alive = sum(counttrig)/den
+	frac_alive.append(fraction_alive)
+
 	
 	pulser = distribution(pulserdata,tmin,tmax,840,860)
 	pulser_list.append(sum(pulser))
 
-	
-	count1 = distribution(ch2data,tmin,tmax,16,1023)
+	count1 = distribution(ch2data,tmin,tmax,0,1023)
 	count_list2.append(sum(count1))
-	count2 = distribution(ch3data,tmin,tmax,25,1023)
+	count2 = distribution(ch3data,tmin,tmax,0,1023)
 	count_list3.append(sum(count2))
 
-	centroid2 = centroid(count1,16, 1023)
+	centroid2 = centroid(count1,0, 1023)
 	cen_list2.append(centroid2)
-	centroid3 = centroid(count2,25,1023)
+	centroid3 = centroid(count2,0,1023)
 	cen_list3.append(centroid3)
 
 
-fraction_alive = np.array(count_list2)/np.array(count_trig)
-print("fraction alive",fraction_alive)
+#fraction_alive = np.array(count_list2)/np.array(count_trig)
+print("fraction alive",frac_alive)
 
 ch2rate = np.array(count_list2)/real_t_interval
 ch3rate = np.array(count_list3)/real_t_interval
@@ -102,6 +120,7 @@ ch3rate = np.array(count_list3)/real_t_interval
 print("channel 2 data", count_list2)
 print("channel 2 centroid", cen_list2)
 print("channel 2 rate", ch2rate)
+
 print("")
 print("channel 3 data", count_list3)
 print("channel 3 centroid", cen_list3)
@@ -116,8 +135,14 @@ linear_fit3 = np.polyfit(np.array(cen_list3), ch3rate,1)
 print("")
 print('L fit ch2', linear_fit2, "L fit ch3", linear_fit3)
 
+std_chrate = np.std(ch3rate)/np.mean(ch3rate)
+print("standard dev before rescale",std_chrate )
+
 corrected_rate = rescale(cen_list3, ch3rate,4.80039 )
 print("corrected_rate3", corrected_rate)
+
+std_corrected_rate = np.std(corrected_rate)/np.mean(corrected_rate)
+print("corrected standard deviation",std_corrected_rate)
 
 corrected_count = np.array(corrected_rate)*real_t_interval
 
@@ -125,7 +150,7 @@ chi = chisquare(ch2rate, count_list2)
 print("chi_square_before", chi)
 
 corr_chi = chisquare(corrected_rate,corrected_count)
-print(corr_chi)
+print("corrected chi", corr_chi)
 
 
 
