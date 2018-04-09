@@ -6,6 +6,6 @@ Here x direction represents energy/pulse height channel and y direction represen
 Matplotlib is used for plotting.
 
 Usage:
-  python N_data.py infutfile
-inputfile:  "1" using data from vertical scintillator pair 
-            "2"                 horizonal scintillator pair
+    python N_data.py infutfile
+  inputfile:  "1" using data from vertical scintillator pair 
+              "2"                 horizonal scintillator pair
