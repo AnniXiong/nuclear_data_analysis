@@ -11,7 +11,6 @@ import numpy as np
 ch2file = "ch2_9004.csv"
 ch3file = "ch3_9004.csv"
 scalerfile = "trig_9004.csv"
-scalerfile2 = "scaler11_8007.csv"
 ch2_E_range = [2,500]  # 16 1023  /4 500
 ch3_E_range = [2,500]
 
@@ -29,7 +28,7 @@ print('Dimension of ch2 data time * energy',ch2data.shape)
 ch3data = np.genfromtxt(ch3file, dtype=int, delimiter="\t")
 print('Dimension of data time * energy', ch3data.shape)
 
-trigger = np.genfromtxt("scaler2_8007.csv", dtype=int, delimiter="\t")
+trigger = np.genfromtxt(scalerfile, dtype=int, delimiter="\t")
 print('diemnsion of trigger data ', trigger.shape)
 
 
