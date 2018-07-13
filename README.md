@@ -8,12 +8,12 @@ There are two small scintillator paddles used in the experiment; triggering is o
 The input file consists of purely text data, each represents a count recored by JAM program,
 One example looks like the following
 
-  ------> Energy channel
-| 1 2 3 4 5 6 ...
-| 1 2 3 4 5 6
-| ...
-∨
-time channel
+    ------> Energy channel
+    | 1 2 3 4 5 6 ...
+    | 1 2 3 4 5 6
+    | ...
+    ∨
+    time channel
 
 Matplotlib is the used for plotting, the file responsible for plotting is linked with N_data.py
 
