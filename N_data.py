@@ -8,9 +8,9 @@ import numpy as np
 # ch2_8005.csv, ch3_8005.csv, scaler2.csv, scaler11.csv
 
 #////////////Subject to change
-ch2file = "ch2_9004.csv"
-ch3file = "ch3_9004.csv"
-scalerfile = "trig_9004.csv"
+ch2file = "Data/ch2_9004.csv"
+ch3file = "Data/ch3_9004.csv"
+scalerfile = "Data/trig_9004.csv"
 ch2_E_range = [2,500]  # 16 1023  /4 500
 ch3_E_range = [2,500]
 
