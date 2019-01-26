@@ -4,6 +4,9 @@ The main purpose is to calculate the counting chi square and proporation variati
 
 There are two small scintillator paddles used in the experiment; triggering is on the coincidence counts of these two scintillators. Two data sets are generated labeled as ch2(thin and small) and ch3(thick and large) corresponding to each scintillator and they are analyzed the same way separately.
 
+# Requirements
+Make sure that Numpy and Matplotlib are installed
+
 # input file format
 The input file consists of purely text data, each represents a count recored by JAM program,
 One example looks like the following
@@ -19,6 +22,8 @@ Matplotlib is the used for plotting, the file responsible for plotting is linked
 
 Usage (may vary depending on the python version)installed:
 
-    python3 N_data.py
+    python N_data.py 
+    or
+    python oo_main.py
 
 
