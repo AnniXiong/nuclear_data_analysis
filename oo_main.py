@@ -2,7 +2,7 @@
 import nuclear_class as o
 import numpy as np
 
-d1 = o. Nuclear_data("Si_104.csv",       	# input file
+d1 = o. Nuclear_data("Data/Si_104.csv",     # input file
 					   61,           	    # interval
 					  [4,507],              # E_range, ch3_E_range
 					   5,                   # timeoffset，the number of time channels to be excluded in the begining					              
