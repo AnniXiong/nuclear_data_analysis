@@ -1,6 +1,6 @@
 import numpy as np
-import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
 class Nuclear_data(object):
 	
@@ -11,6 +11,7 @@ class Nuclear_data(object):
 		self.E_range = E_range
 		self.timeoffset = timeoffset
 		self.timemax = timemax
+		self.TTimeCh = timemax - timeoffset
 		self.trial = int((timemax - timeoffset)/interval)
 
 	def PrintInfo (self):
@@ -19,6 +20,7 @@ class Nuclear_data(object):
 		print("real time is", self.time)
 		print("Energy range is", self.E_range)
 		print("time max", self.timemax, "trial", self.trial)
+		print("total time channels", self.TTimeCh)
 	
 	def DatatoArray (self):
 		DataA = np.genfromtxt(self.inputfile,dtype=int, delimiter="\t")
@@ -26,8 +28,9 @@ class Nuclear_data(object):
 		return DataA
 
 	def InitialSelection(self, inputfile):
+		# Time selection from timeoffset to timemax
 		time_range = inputfile[self.timeoffset: self.timemax]     
-		#Choose column from Emin to Emax
+		# Energy selection from Emin to Emax
 		data_choosen = time_range[ : ,self.E_range[0]:self.E_range[1] + 1]
 		return data_choosen
 
@@ -96,13 +99,14 @@ class Nuclear_data(object):
 		ax_m1 = plt.subplot(gs[0])
 		ax_m1.plot (x, cr_input, color='b',marker="o",linestyle="None",markersize=3)
 		ax_m1.errorbar(x, cr_input, yerr = error_input , xerr = None, ecolor = 'r')
-		ax_m1.set_title("Counting rate and residual")
-		ax_m1.set_ylabel("counting rate (counts/s)")
+		ax_m1.set_title("Counting rate and residual", fontsize = 17)
+		ax_m1.set_ylabel("counting rate (counts/s)",fontsize=16)
 		ax_m1.set_xlim (-0.5, max(x)+0.5)
 		
 		ax_m2 = plt.subplot(gs[1])
 		ax_m2.scatter(x, res_input, s = 6)
-		ax_m2.set_xlabel("time (channels, 26 sec/channel)")
+		ax_m2.set_ylabel ("Residual", fontsize=16)
+		ax_m2.set_xlabel("time (channels, 26 sec/channel)",fontsize=16)
 		ax_m2.set_xlim (-0.5, max(x)+0.5)
 		plt.subplots_adjust(hspace=0.1)
 		plt.show ()
@@ -111,11 +115,34 @@ class Nuclear_data(object):
 		fig1,ax = plt.subplots()
 		ax.plot(cendata, input_rate, color='b',marker="o",linestyle="None",markersize=3)
 		ax.plot(cendata, (cendata * b) + a,color='r')
-
-		ax.set_title("ch2rate and centroid correlation")
-		ax.set_xlabel('ch2 centroid')
-		ax.set_ylabel('ch2 count rate (counts/(unit time)')
-		ax.text(np.mean(cendata),np.mean(input_rate), "Count rate = b * Centroid + a ",fontsize=14,color='r')
-		ax.text(np.mean(cendata),np.mean(input_rate - 0.35), "a = "+str(a)+"\nb = "+str(b),fontsize = 13.5,color='r')
+		ax.set_title("Counting rate and centroid correlation", fontsize = 18)
+		ax.set_xlabel('Centroid', fontsize = 17)
+		ax.set_ylabel('Count rate (counts/(unit time)', fontsize = 17)
+		ax.text(np.mean(cendata),np.mean(input_rate) - 0.35, "Count rate = b * Centroid + a ",fontsize=15,color='r')
+		ax.text(np.mean(cendata),np.mean(input_rate - 0.7), "a = "+str(a)+"\nb = "+str(b),fontsize = 14.5,color='r')
 		plt.show()
+
+	def Simulation (self, number_of_sample, mu):
+		sigma = np.sqrt(mu)
+		sim_array = np.zeros((number_of_sample,self.TTimeCh ))
+		for i in range (number_of_sample):
+			os = np.around(np.random.normal(mu, sigma,self.TTimeCh)) 
+			sim_array[i,:] = os
 		
+		fig, ax = plt.subplots ()
+		ax.hist(sim_array[1,:], 50, facecolor='y', histtype = 'step')
+		ax.set_title ("chi square distribution")
+		return sim_array
+
+
+	def SimPlot (self, chi_sim, chi_exp, sig_sim, sig_exp):
+		fig1, (ax1, ax2) = plt.subplots (2)
+		ax1.hist (chi_sim, 50, facecolor='y', histtype = 'step', label= "simulation chi/dof")
+		ax1.vlines(chi_exp, 0, 50, colors = 'r', label="experimental chi/dof")
+		ax1.set_title ("chi square distribution")
+		legend = ax1.legend(loc='upper right', shadow=False, fontsize='14')
+		ax2.hist (sig_sim, 50, facecolor='y', histtype = 'step', label="simulation stdev")
+		ax2.vlines (sig_exp, 0, 50, colors = 'r', label= "experimental stdev")
+		ax2.set_title ("standard deviation distribution")
+		legend = ax2.legend(loc='upper right', shadow=False, fontsize='14')
+		plt.show ()
