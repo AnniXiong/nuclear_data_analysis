@@ -95,7 +95,7 @@ class Nuclear_data(object):
 	def PCountrate (self, cr_input, error_input, res_input):
 		plt.figure ()
 		x = np.arange(self.trial)
-		gs = gridspec.GridSpec(2, 1, width_ratios=[1,0.1], height_ratios=[4,1.5])
+		gs = gridspec.GridSpec(2, 1, width_ratios=[1], height_ratios=[4,1.5]) # there is only one columnso width ratios is 1 D
 		ax_m1 = plt.subplot(gs[0])
 		ax_m1.plot (x, cr_input, color='b',marker="o",linestyle="None",markersize=3)
 		ax_m1.errorbar(x, cr_input, yerr = error_input , xerr = None, ecolor = 'r')
