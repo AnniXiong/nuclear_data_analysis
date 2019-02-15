@@ -2,7 +2,7 @@
 Code for analyzing JAM histogram data from nuclear counting experiment using Sr-90 source.
 The main purpose is to calculate the counting chi square and proporation variation.
 
-#Motivation
+# Motivation
 The He6 experiment located at the North Physics Lab aims to reach sensitivity 10-3 in searching 
 beyond standard model tensor currents that violates chairality. The Fierz interference coefficient (little b) 
 is linearly depended on tensor couplings and can be experimentally extracted by precisely measuring the He6 
