@@ -37,7 +37,7 @@ One example looks like the following
 
 Matplotlib is the used for plotting, the file responsible for plotting is linked with N_data.py
 
-Usage (may vary depending on the python version)installed:
+# Usage (may vary depending on the python version)installed:
 
 Make sure the /Data is present like in the repo;
 
