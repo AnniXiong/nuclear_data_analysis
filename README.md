@@ -39,8 +39,12 @@ Matplotlib is the used for plotting, the file responsible for plotting is linked
 
 Usage (may vary depending on the python version)installed:
 
+Make sure the /Data is present like in the repo;
+
+Old version (linked with plotting.py):
     python N_data.py 
-    or
+
+Object oriented style (linked with nuclear class) (recommended):
     python oo_main.py
 
 
