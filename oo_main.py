@@ -6,7 +6,8 @@ d1 = o. Nuclear_data("Data/Si_104.csv",     # input file
 					   61,           	    # interval
 					  [4,507],              # E_range, ch3_E_range
 					   5,                   # timeoffset，the number of time channels to be excluded in the begining					              
-					   2567)                # timemax
+					   2567,                # timemax
+					   1000)                # number of simulation trials
 
 # Arrange data and calculate stats
 d = d1.DatatoArray()
