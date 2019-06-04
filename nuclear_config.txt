@@ -51,3 +51,10 @@ d7 = o. Nuclear_data("si_pulser_105.csv",  # input file
 					   5,                  # timeoffset，the number of time 					              
 					   2291,
 					   1000)               # timemax
+
+d1 = o. Nuclear_data("si_pulser_120_nowrap.csv",  # input file
+					   6,                  # interval
+					  [18, 416],           # E_range, ch3_E_range
+					   0,                  # timeoffset，the number of time
+					   3264,
+					   1000)               # timemax
